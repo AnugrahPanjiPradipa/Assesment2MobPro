@@ -1,5 +1,7 @@
 package id.Panji.Assesment2
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -18,6 +20,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -35,6 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -143,13 +147,17 @@ fun MainScreen(navController: NavHostController) {
             }
         }
     ) { padding ->
-        // Gunakan data yang telah dikumpulkan
-        ScreenContent(showList, isAscending, dataState, navController, Modifier.padding(padding))
+        ScreenContent(showList, dataState, navController, Modifier.padding(padding))
     }
 }
 
 @Composable
-fun ScreenContent(showList: Boolean, isAscending: Boolean, data: List<Nominal>, navController: NavHostController, modifier: Modifier) {
+fun ScreenContent(
+    showList: Boolean,
+    data: List<Nominal>,
+    navController: NavHostController,
+    modifier: Modifier
+) {
     if (data.isEmpty()) {
         Column(
             modifier = modifier
@@ -197,9 +205,29 @@ fun ScreenContent(showList: Boolean, isAscending: Boolean, data: List<Nominal>, 
     }
 }
 
-
+private fun shareData (
+    context: Context,
+    nominal: String,
+    kegunaan: String,
+    tanggal: String
+) {
+    val message = context.getString(
+        R.string.bagikan_template,
+        nominal,
+        kegunaan,
+        tanggal
+    )
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+    if (shareIntent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(shareIntent)
+    }
+}
 @Composable
 fun ListItem(nominal: Nominal, onClick: () -> Unit) {
+    val context = LocalContext.current
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -215,6 +243,20 @@ fun ListItem(nominal: Nominal, onClick: () -> Unit) {
         )
         Text(text = nominal.kategori)
         Text(text = nominal.tanggal)
+    }
+    Button(
+        onClick = {
+            shareData(
+                context = context,
+                nominal = nominal.nominal.toString(),
+                kegunaan = nominal.kategori,
+                tanggal = nominal.tanggal
+            )
+        },
+        modifier = Modifier.padding(top = 8.dp),
+        contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
+    ) {
+        Text(text = stringResource(R.string.bagikan))
     }
 }
 
