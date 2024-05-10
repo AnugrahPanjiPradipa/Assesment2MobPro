@@ -67,6 +67,13 @@ fun MainScreen(navController: NavHostController) {
     val showList by dataStore.layoutFlow.collectAsState(true)
     var isAscending by remember { mutableStateOf(true) }
 
+    val db = NominalDb.getInstance(LocalContext.current)
+    val factory = remember { ViewModelFactory(db.dao) }
+    val viewModel: MainViewModel = viewModel(factory = factory)
+
+    // Kumpulkan data di sini
+    val dataState by viewModel.sortedData(isAscending).collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -130,19 +137,14 @@ fun MainScreen(navController: NavHostController) {
             }
         }
     ) { padding ->
-        ScreenContent(showList, isAscending, Modifier.padding(padding), navController)
+        // Gunakan data yang telah dikumpulkan
+        ScreenContent(showList, isAscending, dataState, navController, Modifier.padding(padding))
     }
 }
 
-
-
 @Composable
-fun ScreenContent(showList: Boolean, isAscending: Boolean, modifier: Modifier, navController: NavHostController) {
-    val context = LocalContext.current
-    val db = NominalDb.getInstance(context)
-    val factory = ViewModelFactory(db.dao)
-    val viewModel: MainViewModel = viewModel(factory = factory)
-    val data by viewModel.sortedData(isAscending).collectAsState()
+fun ScreenContent(showList: Boolean, isAscending: Boolean, data: List<Nominal>, navController: NavHostController, modifier: Modifier) {
+    // Komposisi ScreenContent
     if (data.isEmpty()) {
         Column(
             modifier = modifier
@@ -189,6 +191,7 @@ fun ScreenContent(showList: Boolean, isAscending: Boolean, modifier: Modifier, n
         }
     }
 }
+
 
 @Composable
 fun ListItem(nominal: Nominal, onClick: () -> Unit) {
