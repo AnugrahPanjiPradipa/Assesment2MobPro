@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -71,7 +72,7 @@ fun MainScreen(navController: NavHostController) {
     val factory = remember { ViewModelFactory(db.dao) }
     val viewModel: MainViewModel = viewModel(factory = factory)
 
-    // Kumpulkan data di sini
+
     val dataState by viewModel.sortedData(isAscending).collectAsState()
 
     Scaffold(
@@ -85,7 +86,7 @@ fun MainScreen(navController: NavHostController) {
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 actions = {
-                    // Icon untuk mengubah status sorting
+
                     IconButton(onClick = {
                         isAscending = !isAscending
                     }) {
@@ -102,7 +103,6 @@ fun MainScreen(navController: NavHostController) {
                         )
                     }
 
-                    // Icon untuk mengubah layout
                     IconButton(onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
                             dataStore.saveLayout(!showList)
@@ -119,6 +119,12 @@ fun MainScreen(navController: NavHostController) {
                             ),
                             tint = MaterialTheme.colorScheme.primary
                         )
+                    }
+                    IconButton(onClick = {navController.navigate(Screen.About.route)}) {
+                        Icon(imageVector = Icons.Outlined.Info, contentDescription = stringResource(
+                            R.string.tentang_aplikasi
+                        ),
+                            tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             )
@@ -144,7 +150,6 @@ fun MainScreen(navController: NavHostController) {
 
 @Composable
 fun ScreenContent(showList: Boolean, isAscending: Boolean, data: List<Nominal>, navController: NavHostController, modifier: Modifier) {
-    // Komposisi ScreenContent
     if (data.isEmpty()) {
         Column(
             modifier = modifier

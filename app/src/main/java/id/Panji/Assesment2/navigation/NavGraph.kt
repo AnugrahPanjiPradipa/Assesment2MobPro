@@ -23,6 +23,9 @@ fun SetupNavGraph(navController: NavHostController = rememberNavController()) {
         composable(route = Screen.FormBaru.route) {
             DetailScreen(navController)
         }
+        composable(route = Screen.About.route) {
+            AboutScreen(navController)
+        }
         composable(
             route = Screen.FormUbah.route,
             arguments = listOf(

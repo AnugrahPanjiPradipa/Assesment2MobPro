@@ -16,4 +16,11 @@
         <string name="grid">Tampilan grid</string>
         <string name="ASC">Ascending</string>
         <string name="DESC">Descending</string>
+        <string name="tentang_aplikasi">Tentang Aplikasi</string>
+        <string name="copyright">Aplikasi ini merupakan aplikasi untuk mencatat pengeluaran anda.
+                \n\nCopyright© 2021 - 2024 Anugrah Panji Pradipa.
+                \n\nAll right reserved.</string>
+        <string name="bagikan">Bagikan</string>
+        <string name="ubah">Ubah</string>
+        <string name="bagikan_template">Nominal: %1$s cm\nKegunaan: %2$s cm\nWaktu: %3$s</string>
 </resources>
