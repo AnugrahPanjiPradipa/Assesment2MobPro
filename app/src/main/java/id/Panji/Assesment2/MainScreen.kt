@@ -32,6 +32,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,6 +65,14 @@ import id.Panji.Assesment2.util.ViewModelFactory
 fun MainScreen(navController: NavHostController) {
     val dataStore = SettingsDataStore(LocalContext.current)
     val showList by dataStore.layoutFlow.collectAsState(true)
+    var isAscending by remember { mutableStateOf(true) }
+
+    val db = NominalDb.getInstance(LocalContext.current)
+    val factory = remember { ViewModelFactory(db.dao) }
+    val viewModel: MainViewModel = viewModel(factory = factory)
+
+    // Kumpulkan data di sini
+    val dataState by viewModel.sortedData(isAscending).collectAsState()
 
     Scaffold(
         topBar = {
@@ -74,6 +85,24 @@ fun MainScreen(navController: NavHostController) {
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 actions = {
+                    // Icon untuk mengubah status sorting
+                    IconButton(onClick = {
+                        isAscending = !isAscending
+                    }) {
+                        Icon(
+                            painter = painterResource(
+                                if (isAscending) R.drawable.baseline_arrow_upward_24
+                                else R.drawable.baseline_arrow_downward_24
+                            ),
+                            contentDescription = stringResource(
+                                if (isAscending) R.string.ASC
+                                else R.string.DESC
+                            ),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    // Icon untuk mengubah layout
                     IconButton(onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
                             dataStore.saveLayout(!showList)
@@ -108,19 +137,14 @@ fun MainScreen(navController: NavHostController) {
             }
         }
     ) { padding ->
-        ScreenContent(showList, Modifier.padding(padding), navController)
+        // Gunakan data yang telah dikumpulkan
+        ScreenContent(showList, isAscending, dataState, navController, Modifier.padding(padding))
     }
 }
 
-
-
 @Composable
-fun ScreenContent(showList: Boolean, modifier: Modifier, navController: NavHostController) {
-    val context = LocalContext.current
-    val db = NominalDb.getInstance(context)
-    val factory = ViewModelFactory(db.dao)
-    val viewModel: MainViewModel = viewModel(factory = factory)
-    val data by viewModel.data.collectAsState()
+fun ScreenContent(showList: Boolean, isAscending: Boolean, data: List<Nominal>, navController: NavHostController, modifier: Modifier) {
+    // Komposisi ScreenContent
     if (data.isEmpty()) {
         Column(
             modifier = modifier
@@ -167,6 +191,7 @@ fun ScreenContent(showList: Boolean, modifier: Modifier, navController: NavHostC
         }
     }
 }
+
 
 @Composable
 fun ListItem(nominal: Nominal, onClick: () -> Unit) {

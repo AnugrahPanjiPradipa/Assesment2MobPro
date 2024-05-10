@@ -25,4 +25,10 @@ interface NominalDao {
     @Query("DELETE FROM nominal WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    @Query("SELECT * FROM nominal ORDER BY tanggal")
+    fun getNominalSortedByDateAscending(): Flow<List<Nominal>>
+
+    @Query("SELECT * FROM nominal ORDER BY tanggal DESC")
+    fun getNominalSortedByDateDescending(): Flow<List<Nominal>>
+
 }

@@ -8,11 +8,21 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
-class MainViewModel(dao: NominalDao) : ViewModel() {
+class MainViewModel(private val dao: NominalDao) : ViewModel() {
 
-    val data: StateFlow<List<Nominal>> = dao.getNominal().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = emptyList()
-    )
+    fun sortedData(ascending: Boolean): StateFlow<List<Nominal>> {
+        return if (ascending) {
+            dao.getNominalSortedByDateAscending().stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000L),
+                initialValue = emptyList()
+            )
+        } else {
+            dao.getNominalSortedByDateDescending().stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000L),
+                initialValue = emptyList()
+            )
+        }
+    }
 }
